@@ -1,0 +1,117 @@
+1. 
+SELECT AVG(prix)
+FROM vehicule
+
+2.
+SELECT COUNT(*)
+FROM vehicule
+WHERE agenceId=1
+
+3.
+SELECT MIN(prix), MAX(prix)
+FROM vehicule v
+INNER JOIN achete a ON v.vehiculeId=a.vehiculeId
+INNER JOIN client c ON a.clientId=c.clientId
+WHERE nom="BERGER Sebastien"
+
+4.
+SELECT COUNT(gamme)
+FROM vehicule v
+INNER JOIN modele m ON v.modeleId=m.modeleId
+WHERE gamme="Modus"
+
+5.
+SELECT gamme, sigle, moteur, AVG(prix)
+FROM modele m
+INNER JOIN vehicule v ON m.modeleId=v.modeleId
+GROUP BY gamme, sigle, moteur
+ORDER BY AVG(prix) DESC
+
+6.
+SELECT gamme, AVG(prix), COUNT(vehiculeId)
+FROM vehicule v
+INNER JOIN modele m ON v.modeleId=m.modeleId
+GROUP BY gamme
+
+7. 
+SELECT a.agenceId, a.ville, YEAR(dateAchat), SUM(prix)
+FROM agence a
+INNER JOIN vehicule v ON a.agenceId=v.agenceId
+INNER JOIN achete ac ON v.vehiculeId=ac.vehiculeId
+GROUP BY agenceId, YEAR(dateAchat)
+
+8.
+SELECT COUNT(vehiculeId), gamme, sigle, moteur, AVG(prix)
+FROM vehicule v
+INNER JOIN modele m ON v.modeleId=m.modeleId
+GROUP BY gamme
+HAVING COUNT(vehiculeId) >= 60
+ORDER BY COUNT(vehiculeId)
+
+9. 
+SELECT c.nom, c.adresse, c.cPostal, c.ville
+FROM client c
+INNER JOIN achete a ON c.clientId=a.clientId
+INNER JOIN vehicule v ON a.vehiculeId=v.vehiculeId
+INNER JOIN agence ag ON v.agenceId=ag.agenceId
+GROUP BY c.clientId
+HAVING COUNT(dateAchat) > 2
+WHERE SUM(prix) > 50000 AND YEAR(dateAchat)=2024
+
+10. 
+SELECT c.nom
+FROM client c
+INNER JOIN achete a ON c.clientId=a.clientId
+INNER JOIN vehicule v ON a.vehiculeId=v.vehiculeId
+INNER JOIN modele m ON v.modeleId=m.modeleId
+WHERE gamme NOT LIKE "Modus"
+GROUP BY c.clientId
+HAVING AVG(prix) > 10000 
+
+// PARTIE SOUS REQUETES
+
+11. 
+SELECT c.nom, c.adresse, c.cPostal, c.ville
+FROM client c
+WHERE clientId NOT IN (SELECT vehiculeId from vehicule)
+
+12.
+SELECT vehiculeId
+FROM vehicule
+WHERE agenceId NOT IN (SELECT agenceId FROM agence)
+
+12(sans sous requête).
+SELECT vehiculeId
+FROM vehicule v
+INNER JOIN agence a ON v.agenceId=a.agenceId
+WHERE v.agenceId="NULL"
+
+13.
+SELECT vehiculeId, gamme, sigle, moteur, nomFinition, nbPortes, clim, prix
+FROM vehicule v
+INNER JOIN modele m ON v.modeleId=m.modeleId
+INNER JOIN finition f ON v.finitionId=f.finitionId
+WHERE prix = (SELECT MIN(prix) FROM vehicule v)
+
+SELECT vehiculeId, gamme, sigle, moteur, nomFinition, nbPortes, clim, prix, (SELECT MIN(prix)FROM vehicule v)
+FROM vehicule v
+INNER JOIN modele m ON v.modeleId=m.modeleId
+INNER JOIN finition f ON v.finitionId=f.finitionId
+GROUP BY vehiculeId
+HAVING prix > (SELECT MIN(prix) FROM vehicule v)
+
+14. 
+SELECT vehiculeId, gamme, sigle, moteur, nomFinition, nbPortes, clim, prix, (SELECT AVG(prix) FROM vehicule v)
+FROM vehicule v
+INNER JOIN modele m ON v.modeleId=m.modeleId
+INNER JOIN finition f ON v.finitionId=f.finitionId
+GROUP BY vehiculeId
+HAVING prix < (SELECT AVG(prix) FROM vehicule v)
+
+15.
+SELECT agenceId, departement, ville
+FROM agence
+WHERE agenceId NOT IN (SELECT v.agenceId FROM vehicule v INNER JOIN achete a ON v.vehiculeId = a.vehiculeId)
+
+
+

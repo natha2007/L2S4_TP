@@ -1,0 +1,3 @@
+Les fiches de synthèse déposées sur Célène donnent des points
+essentiels sur le langage de commandes de linux
+
